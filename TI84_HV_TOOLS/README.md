@@ -1,6 +1,6 @@
 # TI-84 Evo High-Voltage Engineering Check Suite
 
-Ten standalone Python programs for daily substation design review and field support. The modules calculate load flow quantities, sequence fault current, CT voltage demand, battery duty, conceptual transformer-bank capacity, capacitor-bank behavior, neutral-grounding duty, arrester coordination margins, bus electrical duty, and two-dimensional rolling-sphere geometry.
+Eleven standalone Python programs for daily substation design review and field support. The modules calculate load flow quantities, sequence fault current, CT voltage demand, battery duty, conceptual transformer-bank capacity, transformer impedance sizing, capacitor-bank behavior, neutral-grounding duty, arrester coordination margins, bus electrical duty, and two-dimensional rolling-sphere geometry.
 
 ## Files
 
@@ -16,6 +16,9 @@ Ten standalone Python programs for daily substation design review and field supp
 | `SPHERE.py` | Single-mast and equal-mast rolling-sphere cross sections |
 | `VDROP.py` | Temperature-corrected exact phasor voltage drop and conductor loss |
 | `XFMR.py` | 10%-design transformer-bank MVA, HV/MV FLA, and isolated-MV-bus fault screen |
+| `ZSIZE.py` | Minimum actual/nominal impedance, tolerance, voltage and duty headroom; rounded procurement candidate and OEM check |
+
+See [ZSIZE_MANUAL.md](./ZSIZE_MANUAL.md) for the impedance module, worked examples, input definitions, and procurement review boundary.
 
 See [INSTRUCTION_MANUAL.md](./INSTRUCTION_MANUAL.md) for prompt-by-prompt use and [CALCULATION_BASIS.md](./CALCULATION_BASIS.md) for formulas, sources, edition status, and limitations.
 
@@ -23,7 +26,7 @@ See [INSTRUCTION_MANUAL.md](./INSTRUCTION_MANUAL.md) for prompt-by-prompt use an
 
 1. Connect the calculator and open TI Connect Evo.
 2. Choose **SEND FILES**.
-3. Select only the ten `.py` files in this folder.
+3. Select the desired `.py` files in this folder (eleven programs total).
 4. On the calculator, open the Python application, select a program, and run it.
 5. Record the program revision, every input, the output, project/asset, operating case, and governing source.
 

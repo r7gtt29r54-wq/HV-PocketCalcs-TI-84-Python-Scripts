@@ -480,6 +480,8 @@ The HV FLA represents the common HV bus with the transformer banks in parallel. 
 
 ## 14. Required disposition after a run
 
+For the added `ZSIZE.py` impedance-sizing program, see the dedicated [ZSIZE instruction manual](./ZSIZE_MANUAL.md). It includes minimum actual and nominal Z, an upward-rounded candidate, OEM proposal checks, and the distinction between split and tied MV buses.
+
 Use one of these dispositions in the design-review record:
 
 - **MATCH:** independent result agrees with the governing calculation within the stated rounding/model tolerance.
