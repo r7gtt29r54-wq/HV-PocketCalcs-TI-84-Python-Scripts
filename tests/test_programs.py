@@ -7,7 +7,7 @@ ROOT = Path(__file__).resolve().parents[1] / "TI84_HV_TOOLS"
 
 CASES = {
     "ARREST.py": (
-        "36.5\n0.57735\n24.4\n30\n32\n10\n200\n80\n150\n100\n",
+        "36.5\n0.57735\n24.4\n30\n32\n10\n200\n80\n150\n100\n20\n15\n",
         ["Req MCOV = 21.073 kV", "TOV margin = 6.67 %", "VOLTAGE CHECKS MEET"],
     ),
     "BUSCHK.py": (
@@ -15,16 +15,16 @@ CASES = {
         ["Cont I = 1506.1 A", "I2t use = 10.1 %", "ENTERED DUTIES MEET"],
     ),
     "CAPBANK.py": (
-        "50\n0.9\n0.98\n34.5\n60\n1\n5\n3\n1000\n",
+        "50\n0.9\n0.98\n34.5\n34.5\n60\n1\n5\n3\n1000\n",
         ["Ideal bank = 14.063 Mvar", "Actual PF = 0.98343", "Resonance order = 8.165"],
     ),
     "CTBURD.py": (
-        "40\n2000\n5\n500\n0.2\n2\n1\n0.5\n400\n20\n",
-        ["Rated burden = 8.0 VA", "Offset req V = 1722.0 V", "EXCITATION CURVE CHECK"],
+        "40\n2000\n5\n500\n0.2\n3\n1\n0.5\n400\n20\n1000\n",
+        ["Rated burden VA = 8.0", "Offset req V = 1722.0", "EXCITATION LIMIT EXCEEDS"],
     ),
     "DCLOAD.py": (
-        "10\n8\n50\n1\n30\n1\n1.1\n1.15\n1.25\n1.1\n1.1\n8\n1\n200\n",
-        ["Duty removed = 81.0 Ah", "Charger output = 23.251 A", "AH SCREEN MEETS"],
+        "3\n50\n1\n10\n478\n30\n1\n0\n0\n10\n1.1\n8\n1.1\n1\n",
+        ["Duty removed Ah = 81.0", "Charger output A = 23.251", "Battery size HOLD"],
     ),
     "FAULT3.py": (
         "100\n34.5\n1\n0.01\n0.1\n0.01\n0.1\n0.03\n0.3\n0\n0\n",
@@ -44,7 +44,7 @@ CASES = {
     ),
     "XFMR.py": (
         "300\n0.95\n10\n230\n34.5\n10\n2\n",
-        ["Required total = 347.368 MVA", "HV bank FLA = 872.0 A", "MV fault/unit = 29.066 kA"],
+        ["Required total = 347.368 MVA", "HV bank FLA = 872.0 A", "Fault needs OEM MVA base"],
     ),
 }
 

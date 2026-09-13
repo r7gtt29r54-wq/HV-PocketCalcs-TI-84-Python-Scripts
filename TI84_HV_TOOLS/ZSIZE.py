@@ -1,18 +1,36 @@
+# Local review revision 2026-09-12. Enter Q to cancel any prompt.
+def report(*items):
+    for item in items:
+        if isinstance(item, float) and (item != item or abs(item) == float("inf")):
+            raise ValueError
+    print(*items)
+
+
+def whole(prompt):
+    value = number(prompt)
+    if value != int(value):
+        raise ValueError
+    return int(value)
+
+
 # ZSIZE 2026-09-12: equal two-winding units, infinite HV source.
 # Every Z% is on the entered PER-UNIT transformer MVA/kV base.
 from math import sqrt, ceil
 
 
 def number(prompt, low, high):
-    value = float(input(prompt))
+    text = input(prompt)
+    if text.strip().upper() == "Q":
+        raise KeyboardInterrupt
+    value = float(text)
     if value != value or value < low or value > high:
         raise ValueError
     return value
 
 
-print("XFMR IMPEDANCE SIZING")
-print("Infinite HV source")
-print("Equal 2-winding units")
+report("XFMR IMPEDANCE SIZING")
+report("Infinite HV source")
+report("Equal 2-winding units")
 try:
     s = number("Z base MVA/unit: ", 0.000001, 1000000)
     hv = number("HV base kV LL: ", 0.000001, 10000)
@@ -30,8 +48,8 @@ try:
     target = limit * (1 - margin / 100)
     budget = target - other
     if budget <= 0:
-        print("NO XFMR DUTY BUDGET")
-        print("Change sources/rating")
+        report("NO XFMR DUTY BUDGET")
+        report("Change sources/rating")
     else:
         ib = s / (sqrt(3) * lv)
         ih = s * 1000 / (sqrt(3) * hv)
@@ -39,29 +57,40 @@ try:
         actual = 100 * c * n * ib / budget
         nominal = actual / (1 - tol / 100)
         candidate = ceil(nominal / step) * step
+        # For the standard two-winding tolerance, low-Z uses 10%.
+        if candidate <= 2.5 and tol < 10:
+            report("Low-Z: using 10% tol")
+            tol = 10
+            nominal = actual / (1-tol/100)
+            candidate = ceil(nominal / step) * step
         selected = proposed if proposed > 0 else candidate
-        if selected <= 2.5 and tol < 10:
-            print("CHECK LOW-Z TOLERANCE")
-        lowz = selected * (1 - tol / 100)
+        checktol = tol
+        if selected <= 2.5 and checktol < 10:
+            report("Low-Z OEM: using 10%")
+            checktol = 10
+        lowz = selected * (1 - checktol / 100)
         fault = c * n * ib * 100 / lowz + other
-        print("Base MVA/unit =", s)
-        print("HV FLA/unit A =", round(ih, 2))
-        print("LV FLA/unit A =", round(ib * 1000, 2))
-        print("LV Zbase ohm =", round(baseohm, 5))
-        print("Target duty kA =", round(target, 4))
-        print("XFMR budget kA =", round(budget, 4))
-        print("Min actual Z% =", round(actual, 4))
-        print("Min nominal Z% =", round(nominal, 4))
-        print("Rounded candidate % =", round(candidate, 6))
-        print("Checked nominal % =", round(selected, 6))
-        print("Lowest actual Z% =", round(lowz, 4))
-        print("Worst screen kA =", round(fault, 4))
-        print("Target spare kA =", round(target - fault, 4))
-        if fault <= target and not (selected <= 2.5 and tol < 10):
-            print("ENTERED SCREEN MEETS")
+        report("Base MVA/unit =", s)
+        report("HV FLA/unit A =", round(ih, 2))
+        report("LV FLA/unit A =", round(ib * 1000, 2))
+        report("LV Zbase ohm =", round(baseohm, 5))
+        report("Target duty kA =", round(target, 4))
+        report("XFMR budget kA =", round(budget, 4))
+        report("Min actual Z% =", round(actual, 4))
+        report("Min nominal Z% =", round(nominal, 4))
+        report("Rounded candidate % =", round(candidate, 6))
+        report("Checked nominal % =", round(selected, 6))
+        report("Checked minus tol % =", checktol)
+        report("Lowest actual Z% =", round(lowz, 4))
+        report("Worst screen kA =", round(fault, 4))
+        report("Target spare kA =", round(target - fault, 4))
+        if fault <= target:
+            report("ENTERED SCREEN MEETS")
         else:
-            print("REVISE CANDIDATE/BASIS")
-        print("PROCUREMENT HOLD")
-        print("Study + OEM review")
+            report("REVISE CANDIDATE/BASIS")
+        report("PROCUREMENT HOLD")
+        report("Study + OEM review")
+except KeyboardInterrupt:
+    report("CANCELLED")
 except (ValueError, OverflowError, EOFError):
-    print("INPUT ERROR")
+    report("INPUT ERROR")

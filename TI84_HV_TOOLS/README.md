@@ -1,37 +1,47 @@
-# TI-84 Evo High-Voltage Engineering Check Suite
+# HV PocketCalcs — TI-84 Evo Python
 
-Eleven standalone Python programs for daily substation design review and field support. The modules calculate load flow quantities, sequence fault current, CT voltage demand, battery duty, conceptual transformer-bank capacity, transformer impedance sizing, capacitor-bank behavior, neutral-grounding duty, arrester coordination margins, bus electrical duty, and two-dimensional rolling-sphere geometry.
+18 standalone pocket programs, revised 2026-09-12 after a calculation/source audit. Approved by the repository owner for GitHub publication. Calculator transfer and physical execution of this revision remain unverified.
 
-## Files
+[Complete instruction manual](./INSTRUCTION_MANUAL.md) · [Calculation sources and limitations](./CALCULATION_BASIS.md) · [Audit report](../AUDIT_STATUS.md)
 
-| Program | Primary calculation |
+| Program | Daily use |
 |---|---|
-| `ARREST.py` | MCOV, TOV, lightning-impulse, and switching-impulse margins |
-| `BUSCHK.py` | MVA-to-current, continuous loading, short-time I-squared-t, and peak duty |
-| `CAPBANK.py` | PF correction, discrete steps, actual PF, capacitance, voltage-rise and resonance screens |
-| `CTBURD.py` | CT secondary current, lead/device burden, symmetrical voltage, and offset voltage demand |
-| `DCLOAD.py` | Two-event DC duty, factor-adjusted Ah screen, charger output, and selected-battery use |
-| `FAULT3.py` | Three-phase, line-to-ground, and line-to-line sequence fault currents |
-| `NGR.py` | Resistor, system charging current, total ground-fault current, MW, and energy |
-| `SPHERE.py` | Single-mast and equal-mast rolling-sphere cross sections |
-| `VDROP.py` | Temperature-corrected exact phasor voltage drop and conductor loss |
-| `XFMR.py` | 10%-design transformer-bank MVA, HV/MV FLA, and isolated-MV-bus fault screen |
-| `ZSIZE.py` | Minimum actual/nominal impedance, tolerance, voltage and duty headroom; rounded procurement candidate and OEM check |
+| [ARREST.py](./ARREST.py) | Arrester voltage coordination |
+| [BUSCHK.py](./BUSCHK.py) | Bus continuous, short-time and peak duty |
+| [CAPBANK.py](./CAPBANK.py) | Capacitor bank selection at operating voltage |
+| [CTBURD.py](./CTBURD.py) | CT burden and internal excitation demand |
+| [DCLOAD.py](./DCLOAD.py) | Sequential battery duty and charger calculation |
+| [FAULT3.py](./FAULT3.py) | Three-phase and sequence fault currents |
+| [NGR.py](./NGR.py) | Neutral resistor and capacitive charging duty |
+| [SPHERE.py](./SPHERE.py) | Single-mast or equal-support rolling-sphere section |
+| [VDROP.py](./VDROP.py) | Receiving-end three-phase voltage-drop phasor |
+| [XFMR.py](./XFMR.py) | Concept transformer capacity and winding currents |
+| [ZSIZE.py](./ZSIZE.py) | Transformer impedance from a downstream duty limit |
+| [PUBASE.py](./PUBASE.py) | Per-unit R/X base conversion |
+| [DCDROP.py](./DCDROP.py) | DC control-loop voltage and maximum length |
+| [PQSUM.py](./PQSUM.py) | Signed real/reactive power aggregation |
+| [WENNER.py](./WENNER.py) | Wenner apparent resistivity |
+| [UNBAL.py](./UNBAL.py) | Line-voltage magnitude unbalance |
+| [BUSAMP.py](./BUSAMP.py) | Bus conductor heat-balance audit |
+| [REACTOR.py](./REACTOR.py) | Radial series-reactor impedance sizing |
 
-See [ZSIZE_MANUAL.md](./ZSIZE_MANUAL.md) for the impedance module, worked examples, input definitions, and procurement review boundary.
+## Use
 
-See [INSTRUCTION_MANUAL.md](./INSTRUCTION_MANUAL.md) for prompt-by-prompt use and [CALCULATION_BASIS.md](./CALCULATION_BASIS.md) for formulas, sources, edition status, and limitations.
+1. Review the program's input definitions and worked case in the manual.
+2. Transfer the desired `.py` files with TI Connect Evo; documentation and tests remain on the computer.
+3. Run in the Python app. Enter `Q` to cancel; restart after an input error. Review wrapped output using shell scrolling.
+4. Verify the worked example on the physical calculator before routine use. This audit verified desktop behavior and the documented TI-Python subset only.
 
-## Transfer and run
+Each script is independent. No vendor tables, operating limits, sphere radius, protective margin, OEM battery curve or equipment rating is silently supplied. Numerical matches support review under the stated model; procurement/operating decisions require the applicable study and accountable approval.
 
-1. Connect the calculator and open TI Connect Evo.
-2. Choose **SEND FILES**.
-3. Select the desired `.py` files in this folder (eleven programs total).
-4. On the calculator, open the Python application, select a program, and run it.
-5. Record the program revision, every input, the output, project/asset, operating case, and governing source.
+## Desktop verification
 
-The files use only core Python and the `math` module. TI describes TI-Python as a CircuitPython adaptation and lists built-ins plus `math` among its included capabilities. TI also directs users to validate transferred programs on the physical calculator. See the [TI Python programming guide](https://education.ti.com/html/webhelp/EG_TI84PlusCEPY/EN/content/eg_pythonappprog/m_pygetstart/m_84ce_pyobapp.HTML).
+Run from the repository root:
 
-## Control boundary
-
-These are transparent independent checks, not sealed calculations, equipment selections, protection settings, construction instructions, switching orders, or energization authority. No conductor table, OEM curve, adopted design margin, sphere radius, CT class, battery factor, or acceptance criterion is embedded. Those values must come from the exact project study, Owner/EOR requirement, utility criterion, approved vendor data, and adopted code/standard.
+```sh
+python3 -B tests/test_programs.py
+python3 -B tests/test_zsize.py
+python3 -B tests/test_audit_regressions.py
+python3 -B tests/test_suite.py
+python3 -B tests/verify_delivery.py
+```

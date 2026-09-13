@@ -1,492 +1,639 @@
-# TI-84 Evo High-Voltage Engineering Check Suite - Instruction Manual
+# HV PocketCalcs — complete instruction manual
 
-## 1. Purpose
+Revision 2026-09-12. Audited package of 18 standalone programs, approved by the repository owner for GitHub publication. Calculator transfer and physical execution of this revision remain unverified.
 
-This suite is a set of transparent, daily-use independent checks for a high-voltage substation engineer. Each program calculates multiple intermediate quantities so the user can identify where a design package diverges, rather than merely seeing a final pass/fail label.
+## Running a program
 
-The programs are not substitutes for ETAP, ASPEN, CDEGS, CYMCAP, an IEEE 485 worksheet, an IEEE 605 bus calculation, a three-dimensional lightning model, an insulation-coordination study, or an approved OEM curve. Pocket calculators are excellent at arithmetic and notably poor at assuming responsible charge.
+Transfer the desired `.py` files only, then select and run the program in the calculator Python app. Each is standalone with core Python and `math` only. Enter numeric values with a decimal point, no commas or unit suffixes. Enter `Q` at any prompt to cancel; an invalid value ends the run. On an input/numerical error, discard the entire run including any earlier intermediate section results. Results may wrap; scroll the Python shell to review them. Rerun to change inputs.
 
-## 2. Before every use
+Record asset, source revision, units, operating configuration and program revision. `MEETS` refers only to entered criteria under the documented model. The source register links exact clauses/pages and distinguishes current versus historical reference evidence. Examples are synthetic arithmetic checks, never project/OEM input defaults. Desktop examples and regressions are verified; physical TI-84 Evo execution remains unverified.
 
-Record:
+## Program index
 
-- project and exact asset;
-- one-line revision and operating case;
-- study/vendor/source revision for each input;
-- units and per-unit base;
-- program filename and revision date;
-- result, reviewer, and disposition.
-
-Any `MEETS` result means only that the entered duty did not exceed the entered limit under the program's stated model. `HOLD` means necessary information was intentionally not inferred.
-
-## 3. Program index
-
-| Program | Daily review use |
+| Program | Purpose |
 |---|---|
-| ARREST | Review MCOV, TOV, and insulation protective margins from study/OEM values |
-| BUSCHK | Convert power flow to bus current and check continuous, short-time, and peak duty |
-| CAPBANK | Check ideal and selected bank size, actual PF, capacitance, voltage rise, and resonance |
-| CTBURD | Check CT loop burden and symmetrical/transient secondary voltage demand |
-| DCLOAD | Reconstruct a compact DC duty and charger check from load and tripping schedules |
-| FAULT3 | Recalculate 3PH, SLG, and L-L currents from sequence Thevenin impedances |
-| NGR | Check NGR ohms, charging current, total fault current, power, and energy |
-| SPHERE | Check single-mast or equal-mast 2-D rolling-sphere geometry |
-| VDROP | Check exact balanced three-phase voltage drop with temperature and parallel runs |
-| XFMR | Estimate total transformer-bank MVA and HV/MV FLA at 10% design |
-
-## 4. ARREST.py - arrester coordination
-
-### What it calculates
-
-- required continuous line-ground voltage from maximum line-line voltage and an entered line-ground multiplier;
-- selected MCOV margin;
-- actual TOV in per unit of MCOV and OEM TOV capability margin at an entered duration;
-- lightning-impulse margin from equipment BIL and arrester LIPL;
-- switching-impulse margin when both SIWL and SSPL are supplied.
-
-### Inputs
-
-| Prompt | Enter |
-|---|---|
-| Max system kV LL | Maximum continuous system line-line RMS voltage, not nominal voltage |
-| Cont LG multiplier | `VLG,max / VLL,max` for the applicable grounding and contingency case |
-| Selected MCOV kV | Proposed arrester MCOV, RMS kV |
-| System TOV kV LG | Maximum study TOV at the arrester location, RMS kV |
-| OEM TOV cap kV | OEM-permitted TOV at the entered duration and prior-duty condition |
-| TOV duration sec | Applicable clearing/overvoltage duration |
-| Equipment BIL kV | Protected equipment lightning impulse withstand, crest kV |
-| Arrester LIPL kV | Arrester lightning impulse protective level for the selected current wave |
-| Switch withstand kV | Applicable switching impulse withstand; enter 0 with SSPL 0 to hold |
-| Arrester SSPL kV | Arrester switching surge protective level; enter 0 with SIWL 0 to hold |
-
-### Equations
-
-`Required MCOV = VLL,max x entered LG multiplier`
-
-`MCOV margin % = 100 x (selected MCOV / required MCOV - 1)`
-
-`TOV margin % = 100 x (OEM capability / system TOV - 1)`
-
-`LI margin % = 100 x (BIL / LIPL - 1)`
-
-The program does not declare a required percentage. Compare the calculated margins to the adopted Owner/EOR insulation-coordination criterion.
-
-### Worked check
-
-Inputs: `36.5, 0.57735, 24.4, 30, 32, 10, 200, 80, 150, 100`.
-
-Expected key outputs: required MCOV `21.073 kV`, MCOV margin `15.79%`, TOV margin `6.67%`, LI margin `150%`, SI margin `50%`.
-
-### Hold points
-
-Confirm grounding contingency, TOV duration and prior duty, actual lead length, energy duty, pressure-relief rating, contamination/creepage, separation distance, and the exact OEM curve. Current product-standard scope: IEEE C62.11-2020. See [CALCULATION_BASIS.md](./CALCULATION_BASIS.md), Items 10 and 11.
-
-## 5. BUSCHK.py - bus electrical duty
-
-### What it calculates
-
-- normal and contingency current from entered MVA and bus kV;
-- MVA corresponding to the entered continuous ampere rating;
-- continuous loading percentages;
-- symmetrical short-time `I^2t` duty and use of entered `kA-for-seconds` capability;
-- peak current from an entered asymmetry/peak multiplier and use of the entered peak rating.
-
-### Inputs
-
-| Prompt | Enter |
-|---|---|
-| Bus kV LL | Operating line-line voltage for the power-flow case |
-| Normal MVA | Maximum normal bus-section apparent power |
-| Contingency MVA | Maximum credible contingency bus-section apparent power |
-| Continuous rating A | Approved ampacity for the exact conductor, joints, and environment |
-| Sym fault kA | Maximum applicable symmetrical RMS fault current |
-| Fault duration sec | Backup-clearing duration used for the thermal duty |
-| Bus ST rating kA | Approved short-time current rating |
-| ST rating sec | Time associated with that short-time rating |
-| Peak multiplier | Project/study factor converting symmetrical RMS to peak current |
-| Peak rating kA | Approved peak withstand rating |
-
-### Equations
-
-`I(A) = MVA x 1000 / (sqrt(3) x kV)`
-
-`I2t duty = Isym^2 x clearing time`
-
-`I2t capacity = Ishort-time^2 x rated time`
-
-`Peak duty = entered multiplier x Isym`
-
-### Worked check
-
-Inputs: `230, 500, 600, 2000, 40, 0.25, 63, 1, 2.6, 104`.
-
-Expected key outputs: normal current `1255.1 A`, contingency current `1506.1 A`, bus capacity `796.74 MVA`, I2t use `10.1%`, peak duty `104.0 kA`.
-
-### Hold points
-
-This program does not calculate ampacity, terminal/joint hot spots, short-circuit forces, conductor temperature, sag, or insulator/structure loads. IEEE Std 605-2023 Clause 5.2 identifies the broader design inputs; Annexes B, I, and J contain the full thermal/mechanical workflows. See calculation-basis Item 6.
-
-## 6. CAPBANK.py - capacitor-bank design check
-
-### What it calculates
-
-- initial reactive load;
-- ideal Mvar required to reach target PF;
-- integer number of selected steps required;
-- actual selected bank Mvar and resulting PF, including leading/lagging indication;
-- ideal capacitance per phase per step for delta or grounded/ungrounded wye geometry as entered;
-- first-order voltage-rise and parallel-resonance-order screens when source short-circuit MVA is supplied.
-
-### Inputs
-
-| Prompt | Enter |
-|---|---|
-| Load MW | Real load at the correction condition |
-| Initial PF | Initial PF magnitude, greater than 0 and less than 1 |
-| Target PF | Target PF magnitude, greater than initial PF and no greater than 1 |
-| Bank kV LL | Bank line-line RMS voltage |
-| Frequency Hz | System frequency |
-| 1=DELTA 2=WYE | Physical capacitor connection |
-| Selected step Mvar | Nameplate Mvar of one equal step at entered voltage |
-| Number of steps | Selected installed/energized equal steps |
-| Source SC MVA | Thevenin short-circuit MVA at bank bus; enter 0 to hold screens |
-
-### Equations
-
-`Qinitial = P tan(acos(PFinitial))`
-
-`Qideal = P[tan(acos(PFinitial)) - tan(acos(PFtarget))]`
-
-`PFactual = P / sqrt(P^2 + (Qinitial - Qbank)^2)`
-
-For one delta step: `Cphase = Qstep / (3 omega VLL^2)`.
-
-For one wye step: `Cphase = Qstep / (omega VLL^2)`.
-
-The program reports `100 Qbank/Ssc` as a first-order voltage-rise screen and `sqrt(Ssc/Qbank)` as a parallel-resonance-order screen.
-
-### Worked check
-
-Inputs: `50, 0.90, 0.98, 34.5, 60, 1, 5, 3, 1000`.
-
-Expected key outputs: ideal bank `14.063 Mvar`, required steps `3`, actual PF `0.98343 lagging`, per-phase/step capacitance `3.714 uF`, approximate voltage rise `1.5%`, resonance order `8.165`.
-
-### Hold points
-
-
-## 7. CTBURD.py - CT burden and saturation-voltage screen
-
-### What it calculates
-
-- secondary current at maximum primary fault;
-- round-trip lead resistance;
-- equivalent device impedance from burden VA at rated secondary current;
-- rated-current VA burden;
-- symmetrical terminal and internal CT voltage;
-- class-voltage use for symmetrical current;
-- conservative `(1+X/R)` offset voltage demand and effective-class use.
-
-### Inputs
-
-| Prompt | Enter |
-|---|---|
-| Primary fault kA | Maximum primary fault current through the CT |
-| CT tap primary A | Primary ampere rating of the connected tap |
-| CT rated sec A | Rated secondary current, normally 1 A or 5 A per nameplate |
-| One-way lead ft | CT to relay one-way routed length |
-| Lead ohm/kft | Resistance of one lead conductor at applicable temperature |
-| Relay burden VA | Connected relay burden at rated secondary current |
-| Other burden VA | Test switches, transducers, meters, and other series burden |
-| CT winding ohm | Secondary winding resistance on the connected tap |
-| Effective C class V | Effective terminal accuracy-class voltage for the connected tap |
-| Primary X/R | X/R at the CT for the studied through-fault |
-
-### Equations
-
-`If,sec = If,primary x Isec,rated / Iprimary,tap`
-
-`Rlead = 2 x one-way length x ohm/kft / 1000`
-
-`Zdevice = total device VA / Isec,rated^2`
-
-`Vterminal,sym = If,sec(Rlead + Zdevice)`
-
-`Vrequired,offset = If,sec(1 + X/R)(Rlead + Zdevice + RCT)`
-
-### Worked check
-
-Inputs: `40, 2000, 5, 500, 0.2, 2, 1, 0.5, 400, 20`.
-
-Expected key outputs: fault secondary `100 A`, lead loop `0.2 ohm`, rated burden `8 VA`, symmetrical terminal voltage `32 V`, offset demand `1722 V`. The output correctly calls for an excitation-curve check.
-
-### Hold points
-
-The device VA-to-ohm conversion is a magnitude approximation. Verify actual complex burden, CT connection, full-winding/tap class scaling, excitation curve/knee point, remanence, ratio error, relay algorithm, time to saturation, and internal/external fault cases. The calculation form follows the locally reviewed C37.110-2007; the active edition is C37.110-2023 and must govern when adopted. See calculation-basis Item 8.
-
-## 8. DCLOAD.py - DC duty and charger screen
-
-### What it calculates
-
-- continuous Ah over the selected autonomy period;
-- incremental Ah for two non-overlapping events whose entered currents are total bus current;
-- a factor-adjusted nameplate-Ah screen;
-- charger current using removed Ah, recharge factor/time, continuous load, design factor, and charger correction;
-- utilization of an entered selected battery.
-
-### Inputs
-
-| Prompt | Enter |
-|---|---|
-| Continuous load A | Total steady DC load at applicable battery voltage |
-| Autonomy hours | Required charger-outage standby duration |
-| Event 1 total A | Total DC bus current during event 1 |
-| Event 1 minutes | Event 1 duration |
-| Event 2 total A | Total DC bus current during event 2 |
-| Event 2 minutes | Event 2 duration |
-| OEM rate factor | Explicit conversion from arithmetic Ah to applicable rate/cell screen |
-| Temperature factor | Approved temperature correction factor |
-| Aging factor | Approved end-of-life factor |
-| Design factor | Approved growth/design factor as a multiplier |
-| Recharge factor | Battery recharge efficiency factor |
-| Recharge hours | Required recharge time |
-| Charger corr factor | OEM altitude/temperature/other charger correction |
-| Selected battery Ah | Proposed nameplate Ah; enter 0 to hold selection check |
-
-### Event convention
-
-Each event current is the **total** current during that event. The script adds only `max(0, event current - continuous current)` for the event duration, preventing the continuous load from being counted twice. The two events are assumed not to overlap. If operations can overlap, combine them into the governing event or use a full minute-by-minute worksheet.
-
-### Equations
-
-`Removed Ah = Icontinuous x hours + sum[(Ievent - Icontinuous)+ x minutes/60]`
-
-`Factored screen Ah = removed Ah x rate x temperature x aging x design`
-
-`Charger A = [(removed Ah/recharge h) x recharge factor + Icontinuous] x design x charger correction`
-
-### Worked check
-
-Inputs: `10, 8, 50, 1, 30, 1, 1.1, 1.15, 1.25, 1.1, 1.1, 8, 1, 200`.
-
-Expected key outputs: duty removed `81.0 Ah`, factored screen `140.889 Ah`, charger output `23.251 A`, selected use `70.4%`.
-
-### Hold points
-
-Final battery sizing requires the full duty sequence, minimum system/end voltage, actual coil voltage-current behavior, breaker-failure and restoration logic, DC ties, manufacturer discharge tables, and the adopted IEEE 485/1115 method as applicable. IEEE 1818-2017 Annex C, pp. 85-92, demonstrates why the simple Ah total alone is not a cell selection. See calculation-basis Item 7.
-
-## 9. FAULT3.py - sequence fault-current check
-
-### What it calculates
-
-- base current;
-- bolted or impedance fault three-phase current;
-- SLG current from series positive-, negative-, and zero-sequence impedances;
-- line-to-line current from positive- and negative-sequence impedances;
-- three-phase fault MVA and positive-sequence X/R.
-
-### Inputs
-
-| Prompt | Enter |
-|---|---|
-| System base MVA | Common MVA base for all sequence impedances |
-| Fault bus kV LL | Common voltage base at faulted bus |
-| Prefault voltage pu | Thevenin positive-sequence prefault voltage magnitude |
-| R1, X1 pu | Positive-sequence Thevenin impedance on common base |
-| R2, X2 pu | Negative-sequence Thevenin impedance on common base |
-| R0, X0 pu | Zero-sequence Thevenin impedance on common base |
-| Fault R, X pu | Fault impedance on common base; enter zero for bolted faults |
-
-### Equations
-
-`Ibase(kA) = MVA / [sqrt(3) kV]`
-
-`I3PH,pu = Vpu / |Z1 + Zf|`
-
-`ISLG,pu = 3Vpu / |Z1 + Z2 + Z0 + 3Zf|`
-
-`ILL,pu = sqrt(3)Vpu / |Z1 + Z2 + Zf|`
-
-### Worked check
-
-Inputs: `100, 34.5, 1.0, 0.01, 0.10, 0.01, 0.10, 0.03, 0.30, 0, 0`.
-
-Expected key outputs: base `1.6735 kA`, 3PH `16.6517 kA`, SLG `9.9910 kA`, L-L `14.4208 kA`, positive X/R `10.0`.
-
-### Hold points
-
-All sequence impedances must describe the same topology, fault location, voltage base, MVA base, and study case. Do not use this result as breaker duty without the applicable interrupting/closing/latching method, decrement, asymmetry, TRV, minimum/maximum cases, motor/generator/IBR contribution, and approved utility model. Source: Glover et al., Sections 8.3, 10.2, and 10.3; see calculation-basis Items 4 and 5.
-
-## 10. NGR.py - NGR and charging-current check
-
-### What it calculates
-
-- line-ground voltage;
-- ideal NGR resistance for the entered resistive current;
-- system capacitive charging current for the entered total per-phase capacitance;
-- quadrature total ground-fault current and resistive-to-capacitive ratio;
-- resistor MW and MJ duty.
-
-### Inputs
-
-| Prompt | Enter |
-|---|---|
-| System kV LL | RMS line-line voltage of the grounded island |
-| Resistive GF A | Intended in-phase resistor contribution |
-| Duty time sec | Required resistor thermal duty duration |
-| Frequency Hz | System frequency |
-| Total C/phase uF | Total phase-to-ground capacitance per phase for the studied island; 0 holds charging check |
-
-### Equations
-
-`VLG = VLL/sqrt(3)`
-
-`RNGR = VLG/IR`
-
-`IC = 3 omega Cphase VLG`
-
-`Itotal = sqrt(IR^2 + IC^2)`
-
-`MW = VLG x IR / 1,000,000`; `MJ = MW x seconds`
-
-### Worked check
-
-Inputs: `34.5, 400, 10, 60, 2`.
-
-Expected key outputs: `49.7965 ohm`, charging current `45.055 A`, total fault current `402.529 A`, IR/IC `8.878`, energy `79.6743 MJ`.
-
-### Hold points
-
-Confirm transformer vector group and neutral availability, all connected cables/equipment for each switching case, zero-sequence network, NGR tolerance and hot resistance, voltage rating, time rating, protection sensitivity/coordination, transient recovery, harmonics, enclosure, and OEM selection. The calculator does not decide whether resistance grounding is appropriate.
-
-## 11. SPHERE.py - two-dimensional rolling-sphere geometry
-
-### Mode 1: single mast
-
-Calculates the maximum horizontal offset at the entered equipment height for a mast and a selected sphere radius. For single-mast geometry, mast height above the radius is capped at the radius because the reviewed IEEE 998-2012 Clause 6.3.1 notes that excessive single-mast height above striking distance adds no additional protection in that model.
-
-Inputs: mode `1`, sphere radius, mast height, equipment height, and target offset. Use one consistent distance unit.
-
-`Xmax = sqrt(2RHmast - Hmast^2) - sqrt(2RHequip - Hequip^2)`
-
-### Mode 2: two equal-height masts
-
-Calculates maximum equal-mast spacing for a target at the midpoint and the bottom-of-sphere arc height at the actual midpoint.
-
-Inputs: mode `2`, sphere radius, equal mast height, equipment height at the midpoint, and mast spacing.
-
-`Dmax = 2 sqrt[2R(Hmast-Hequip) - (Hmast-Hequip)^2]`
-
-`Harc,mid = Hmast + sqrt[R^2 - (D/2)^2] - R`
-
-When the mast/equipment height difference is at least `2R`, the program limits maximum spacing to `2R`, the geometric support limit for that cross section.
-
-### Worked checks
-
-- Single mast inputs `1, 150, 60, 20, 40` produce maximum offset `45.1669` and `BELOW 2D ARC`.
-- Equal masts inputs `2, 150, 60, 20, 150` produce maximum spacing `203.9608`, midpoint arc height `39.9038`, and vertical margin `19.9038`.
-
-### Hold points
-
-Touching the sphere is reported as outside. Complete design requires the current adopted method, selected stroke current/radius, three-dimensional plan and elevation geometry, multiple/mixed supports, shield wires and sag, side-stroke assessment, shielding-failure basis, and field coordinates. IEEE 998-2012 was the local calculation source; IEEE 998-2026 is current and must be reviewed/adopted before reliance. See calculation-basis Item 9.
-
-## 12. VDROP.py - exact balanced three-phase voltage drop
-
-### What it calculates
-
-- receiving-end current from MW, kV, and PF;
-- AC resistance corrected from base to operating temperature with an entered coefficient;
-- equivalent R/X for route length and parallel runs;
-- exact sending-end phase-voltage phasor and line-line magnitude;
-- signed voltage change and three-phase conductor loss.
-
-### Inputs
-
-| Prompt | Enter |
-|---|---|
-| Receiving load MW | Three-phase real power at receiving end |
-| Receiving kV LL | Receiving-end line-line RMS voltage |
-| PF | PF magnitude |
-| 1=LAG 2=LEAD | Receiving-load current angle |
-| One-way length ft | Electrical route length |
-| R ohm/kft at base C | Approved AC conductor resistance at base temperature |
-| X ohm/kft | Approved positive-sequence reactance for actual geometry |
-| Base temp C | Temperature associated with entered resistance |
-| Operating temp C | Studied conductor operating temperature |
-| R alpha per C | Approved resistance temperature coefficient; enter 0 if R already matches operating condition |
-| Parallel runs/phase | Equal current-sharing runs per phase |
-
-### Equations
-
-`Rop = Rbase[1 + alpha(Top - Tbase)]`
-
-`I = MW x 1000 / [sqrt(3) kV PF]`
-
-`Vs,phase = Vr,phase + (R + jX)Iphasor`
-
-`Vs,LL = sqrt(3)|Vs,phase|`
-
-`Loss kW = 3I^2R/1000`
-
-### Worked check
-
-Inputs: `50, 34.5, 0.95, 1, 10000, 0.1, 0.08, 75, 90, 0.00393, 2`.
-
-Expected key outputs: current `880.78 A`, operating R `0.10590 ohm/kft`, sending voltage `35.45941 kV`, exact voltage change `2.7809%`, loss `1232.254 kW`.
-
-### Hold points
-
-
-## 13. XFMR.py - transformer 10% capacity check
-
-### What it calculates
-
-- estimated total transformer-bank MVA from plant MWac, PF, and planning margin;
-- arithmetic planning MVA per installed transformer;
-- total parallel-bank FLA at the HV bus;
-- total arithmetic MV FLA and MV FLA per separate transformer secondary;
-- an impedance-only, stiff-HV-source secondary-fault screen for each separate MV bus.
-
-### Inputs
-
-| Prompt | Enter |
-|---|---|
-| Plant MWac | Maximum plant real-power export/import used for this conceptual sizing case |
-| Plant PF | PF magnitude for the plant sizing condition |
-| Planning margin % | Explicit 10%-design margin |
-| HV kV LL | Nominal line-line voltage at the common, parallel transformer HV bus |
-| MV kV LL | Nominal line-line voltage at each separate transformer secondary bus |
-| Transformer Z % | Positive-sequence impedance magnitude on the transformer base; used only for the secondary-fault screen |
-| Installed units | Number of equal transformers sharing the total planning MVA |
-
-### Equations
-
-`Required total MVA = Plant MWac/PF x (1 + margin)`
-
-`Planning MVA/unit = Required total MVA / installed units`
-
-`FLA = MVA x 1000 / [sqrt(3) x kV LL]`
-
-`MV fault/unit = MV FLA/unit / (Z%/100)`
-
-### Worked check
-
-Inputs: `300, 0.95, 10, 230, 34.5, 10, 2`.
-
-Expected key outputs: required total `347.368 MVA`, planning allocation `173.684 MVA/unit`, HV bank FLA `872.0 A`, aggregate MV FLA `5813.1 A`, MV FLA per transformer `2906.6 A`, and MV fault screen `29.066 kA`.
-
-### Hold points
-
-The HV FLA represents the common HV bus with the transformer banks in parallel. The `MV total FLA` is only the arithmetic sum of separate transformer-secondary currents; it is not a rating for one closed MV bus. For normal split 34.5 kV operation, use `MV FLA/unit`. The MV fault screen assumes a stiff HV source and one transformer feeding one isolated MV bus; it excludes utility/source impedance, inverter contribution, motors, cables, reactors, and breaker duty. Confirm load duration, reactive requirements, ultimate cooling stages, ambient, LTC/tap range, impedance tolerance, zero-sequence paths, losses, and OEM guarantees. This is planning support, not an equipment rating or a short-circuit study. IEEE C57.12.00-2021 is a general requirements standard, not a calculator-selected rating. See calculation-basis Items 3 and 11.
-
-## 14. Required disposition after a run
-
-For the added `ZSIZE.py` impedance-sizing program, see the dedicated [ZSIZE instruction manual](./ZSIZE_MANUAL.md). It includes minimum actual and nominal Z, an upward-rounded candidate, OEM proposal checks, and the distinction between split and tied MV buses.
-
-Use one of these dispositions in the design-review record:
-
-- **MATCH:** independent result agrees with the governing calculation within the stated rounding/model tolerance.
-- **CLARIFICATION:** arithmetic is reproducible but an input, basis, operating case, or acceptance limit is not traceable.
-- **DEVIATION:** supplier/EOR result conflicts with an explicit governing requirement.
-- **HOLD:** current edition, project authority, OEM data, study case, or accountable approval is unavailable.
-
-Never turn `MATCH` into `APPROVED` without the responsible review and release workflow.
+| [ARREST.py](./ARREST.py) | Arrester voltage coordination |
+| [BUSCHK.py](./BUSCHK.py) | Bus continuous, short-time and peak duty |
+| [CAPBANK.py](./CAPBANK.py) | Capacitor bank selection at operating voltage |
+| [CTBURD.py](./CTBURD.py) | CT burden and internal excitation demand |
+| [DCLOAD.py](./DCLOAD.py) | Sequential battery duty and charger calculation |
+| [FAULT3.py](./FAULT3.py) | Three-phase and sequence fault currents |
+| [NGR.py](./NGR.py) | Neutral resistor and capacitive charging duty |
+| [SPHERE.py](./SPHERE.py) | Single-mast or equal-support rolling-sphere section |
+| [VDROP.py](./VDROP.py) | Receiving-end three-phase voltage-drop phasor |
+| [XFMR.py](./XFMR.py) | Concept transformer capacity and winding currents |
+| [ZSIZE.py](./ZSIZE.py) | Transformer impedance from a downstream duty limit |
+| [PUBASE.py](./PUBASE.py) | Per-unit R/X base conversion |
+| [DCDROP.py](./DCDROP.py) | DC control-loop voltage and maximum length |
+| [PQSUM.py](./PQSUM.py) | Signed real/reactive power aggregation |
+| [WENNER.py](./WENNER.py) | Wenner apparent resistivity |
+| [UNBAL.py](./UNBAL.py) | Line-voltage magnitude unbalance |
+| [BUSAMP.py](./BUSAMP.py) | Bus conductor heat-balance audit |
+| [REACTOR.py](./REACTOR.py) | Radial series-reactor impedance sizing |
+
+## ARREST — Arrester voltage coordination
+
+**Inputs in order:** Maximum continuous kV LL; continuous LG/VLL ratio; selected MCOV kV RMS; system TOV kV LG RMS; OEM TOV capability kV at the same duration/prior duty; duration seconds; BIL and LIPL kV crest; SI withstand and SSPL kV crest; required LI and SI margins percent.
+
+**Equations:** `Required MCOV = maximum VLL times entered LG multiplier; each margin is 100(capability/duty - 1).`
+
+**Outputs and interpretation:** Uses entered LI/SI criteria in the decision. Enter SI withstand=SSPL=0 to omit SI, which remains unevaluated. One zero and one positive SI value is invalid. Protective levels must represent the relevant waveform and equipment location; no lead/separation, FOW, energy, or curve interpolation is modeled. MCOV and TOV have separate service cases. No universal margin is embedded.
+
+
+### Worked run
+
+```text
+ARRESTER COORDINATION
+Max system kV LL: 36.5
+Cont LG multiplier: 0.57735
+Selected MCOV kV: 24.4
+System TOV kV LG: 30
+OEM TOV cap kV: 32
+TOV duration sec: 10
+Equipment BIL kV: 200
+Arrester LIPL kV: 80
+Switch withstand kV: 150
+Arrester SSPL kV: 100
+Required LI margin %: 20
+Required SI margin %: 15
+Req MCOV = 21.073 kV
+MCOV margin = 15.79 %
+TOV = 1.23 pu MCOV
+TOV margin = 6.67 %
+At 10.0 sec
+LI margin = 150.0 %
+SI margin = 50.0 %
+VOLTAGE CHECKS MEET
+```
+
+## BUSCHK — Bus continuous, short-time and peak duty
+
+**Inputs in order:** Bus kV LL; normal MVA; contingency MVA; continuous A rating; symmetrical kA; clearing seconds; short-time kA rating and its seconds; peak multiplier; peak kA withstand.
+
+**Equations:** `I = 1000 MVA/(sqrt(3) kV); thermal duty = Isym^2 t; peak = entered multiplier times Isym.`
+
+**Outputs and interpretation:** Checks both normal and contingency current. I-squared-t equivalence outside the entered short-time current or time rating is explicitly held even if the product is below the rating. The result does not calculate ampacity, forces, sag or support strength. Use maximum credible clearing time and an applicable peak factor.
+
+
+### Worked run
+
+```text
+BUS DUTY CHECK
+Bus kV LL: 230
+Normal MVA: 500
+Contingency MVA: 600
+Continuous rating A: 2000
+Sym fault kA: 40
+Fault duration sec: 0.25
+Bus ST rating kA: 63
+ST rating sec: 1
+Peak multiplier: 2.6
+Peak rating kA: 104
+Normal I = 1255.1 A
+Cont I = 1506.1 A
+Bus cap = 796.74 MVA
+Normal load = 62.8 %
+Cont load = 75.3 %
+I2t duty = 400.0 kA2s
+I2t use = 10.1 %
+Peak duty = 104.0 kA
+Peak use = 100.0 %
+ENTERED DUTIES MEET
+```
+
+## CAPBANK — Capacitor bank selection at operating voltage
+
+**Inputs in order:** Load MW; initial lagging PF; improved target PF; operating kV LL; bank rated kV LL; frequency Hz; 1=delta or 2=wye; rated Mvar per step; selected steps; source fault MVA (0 omits screens).
+
+**Equations:** `Qneed = P(tan(acos(PF1))-tan(acos(PF2))); Qstep,op = Qstep,rated (Vop/Vrated)^2; Cdelta = Q/(3 omega VLL^2); Cwye = Q/(omega VLL^2).`
+
+**Outputs and interpretation:** Outputs required steps, selected operating Mvar, actual PF direction, line current, and capacitance per phase per step in microfarads. The integer-step ceiling can overshoot into leading PF. dV%=100 Q/Ssc and resonance order=sqrt(Ssc/Q) are first-order screens. Bank temperature, harmonics, reactors, switching/inrush, fuses and unbalance need separate design.
+
+
+### Worked run
+
+```text
+CAP BANK DESIGN CHECK
+Load MW: 50
+Initial PF: 0.9
+Target PF: 0.98
+Operating kV LL: 34.5
+Bank rated kV LL: 34.5
+Frequency Hz: 60
+1=DELTA 2=WYE: 1
+Selected step Mvar: 5
+Number of steps: 3
+Source SC MVA: 1000
+Initial Q = 24.216 Mvar
+Ideal bank = 14.063 Mvar
+Steps required = 3
+Selected bank = 15.0 Mvar
+At operating voltage
+Bank line current A = 251.02
+C per phase/step = 3.714 uF
+Actual PF = 0.98343
+Actual PF is LAG
+Approx dV = 1.5 %
+Resonance order = 8.165
+```
+
+## CTBURD — CT burden and internal excitation demand
+
+**Inputs in order:** Primary fault kA; CT primary tap A; rated secondary A; one-way lead ft; hot lead ohm/kft; total connected device VA at rated secondary current; aggregate burden PF (inductive); winding ohm on the tap; effective terminal C-class V (0 unknown); primary X/R; permitted INTERNAL exciting V from curve/OEM criterion (0 unknown).
+
+**Equations:** `Ifsec = Ifprimary Israted/Itap; Zdev = VA/Israted^2; Rext = 2 L r/1000 + Zdev PF; Xext = Zdev sqrt(1-PF^2); Vterminal=Ifsec |Zext|; Vinternal=Ifsec |Zext+RCT|; Voffset=(1+X/R) Vinternal.`
+
+**Outputs and interpretation:** The VA and PF must represent the combined devices at the relevant frequency/current, not an arbitrary sum of incompatible burdens. The terminal/C ratio is informational, not a saturation certification. Enter excitation voltage at a defined allowable exciting-current/flux criterion, not a C-class label relabeled as knee voltage. The older source uses C-class as a conservative proxy in its example; this calculator keeps the evidence distinct. No remanence or time-to-saturation, CT error, relay algorithm or waveform model. Use current CT guide/OEM data before application.
+
+
+### Worked run
+
+```text
+CT LOOP / EXCITATION
+Primary fault kA: 40
+CT tap primary A: 2000
+CT rated sec A: 5
+One-way lead ft: 500
+Lead ohm/kft: 0.2
+Total device VA: 3
+Device burden PF: 1
+CT winding ohm: 0.5
+C class V (0=unknown): 400
+Primary X/R: 20
+Exc V limit (0=none): 1000
+Fault secondary A = 100.0
+Lead loop R ohm = 0.2
+External R ohm = 0.32
+External X ohm = 0.0
+Rated burden VA = 8.0
+Sym terminal V = 32.0
+Sym internal V = 82.0
+Offset req V = 1722.0
+Terminal/C ratio = 0.08
+C class is not knee V
+Exc limit/req = 0.5807
+EXCITATION LIMIT EXCEEDS
+No remanence/time model
+```
+
+## DCLOAD — Sequential battery duty and charger calculation
+
+**Inputs in order:** Period count 1-8; for each period TOTAL current A and duration minutes (at least 1). OEM Kt available: 1 yes, 0 no. If yes: enter prompted Kt in Ah/A at each displayed cumulative duration, then separately calculated random-duty size Ah, temperature multiplier, aging multiplier, battery design multiplier and selected rated Ah (0 none). Finally enter random Ah actually removed, load supported during recharge A, recharge multiplier, hours, charger design multiplier and altitude multiplier.
+
+**Equations:** `Aremoved = sum(Ai ti/60). For each endpoint s, Fs=sum((Ap-Ap-1) Kt), with A0=0 and t measured from start of period p to end of section s. Required rated Ah=(max Fs+random-duty size Ah) temperature aging design. Charger=[Aremoved recharge/recharge-hours+continuous recharge load] charger-design altitude.`
+
+**Outputs and interpretation:** Use one exact cell family, temperature basis, endpoint V/cell and capacity rating definition. Kt is rated Ah divided by discharge A at the displayed duration; it is not ampere/plate Rt and is not elapsed hours. The program caches repeated durations and rejects Kt decreasing with increasing time. Negative load changes are retained. All section endpoints are evaluated. Synthetic factors in the example are test data, not OEM curves. Random size and random Ah removed are distinct quantities; enter 0 only if absent. No-Kt mode still calculates charge removed/charger but holds battery size. Fixed sequential total loads must already combine simultaneous loads; separate random duty must be evaluated per IEEE 485 §6.4.4. Subminute transients, random combinations, cell count/voltage window, initial capacity, coup de fouet and selected-size curve validity require review. Multipliers below 1 are excluded to avoid assumed capacity credit. Discard earlier section prints if later inputs produce an error.
+
+
+### Worked run
+
+```text
+DC DUTY / OEM Kt
+Sequential total loads
+Periods (1-8): 3
+Period 1
+Total current A: 50
+Duration minutes: 1
+Period 2
+Total current A: 10
+Duration minutes: 58
+Period 3
+Total current A: 30
+Duration minutes: 1
+OEM Kt? 1=YES 0=NO: 1
+Kt for 1.0 min
+OEM Kt (Ah/A): 0.2
+Section 1 Ah = 10.0
+Kt for 59.0 min
+OEM Kt (Ah/A): 1.2
+Kt for 58.0 min
+OEM Kt (Ah/A): 1.1
+Section 2 Ah = 16.0
+Kt for 60.0 min
+OEM Kt (Ah/A): 1.3
+Section 3 Ah = 21.0
+Random duty size Ah: 3
+Temp size multiplier: 1.1
+Aging multiplier: 1.25
+Battery design mult: 1.1
+Selected Ah (0=none): 40
+Governing section = 3
+Raw cell size Ah = 24.0
+Required rated Ah = 36.3
+Selected use % = 90.75
+ENTERED Kt SIZE MEETS
+Random removed Ah: 1
+Recharge load A: 10
+Recharge multiplier: 1.1
+Recharge hours: 8
+Charger design mult: 1.1
+Charger altitude mult: 1
+Duty minutes = 60.0
+Peak duty A = 50.0
+Duty removed Ah = 12.0
+Charger output A = 12.815
+Verify OEM cell/endpoint
+```
+
+## FAULT3 — Three-phase and sequence fault currents
+
+**Inputs in order:** System base MVA; fault-bus base kV LL; prefault voltage pu; R1/X1, R2/X2, R0/X0 in pu; fault R/X in pu.
+
+**Equations:** `I3pu=c/|Z1+Zf|; ILGpu=3c/|Z1+Z2+Z0+3Zf|; ILLpu=sqrt(3)c/|Z1+Z2+Zf|; Ibase,kA=MVA/(sqrt(3) kV).`
+
+**Outputs and interpretation:** All impedances must be on the same base and represent the actual winding/grounding topology. One entered Zf is interpreted per phase for 3PH, phase-to-ground for SLG, and between the two faulted phases for LL; use separate runs if physical fault impedances differ. Passive nonnegative R/X model only; zero denominators rejected. Outputs are RMS symmetrical magnitudes, not breaker asymmetrical/peak duty, decrement, or inverter behavior.
+
+
+### Worked run
+
+```text
+SEQUENCE FAULT CHECK
+System base MVA: 100
+Fault bus kV LL: 34.5
+Prefault voltage pu: 1
+R1 pu: 0.01
+X1 pu: 0.1
+R2 pu: 0.01
+X2 pu: 0.1
+R0 pu: 0.03
+X0 pu: 0.3
+Fault R pu: 0
+Fault X pu: 0
+I base = 1.6735 kA
+3PH = 9.9504 pu
+3PH = 16.6517 kA
+3PH fault = 995.04 MVA
+SLG = 5.9702 pu
+SLG = 9.991 kA
+L-L = 8.6173 pu
+L-L = 14.4208 kA
+Positive X/R = 10.0
+```
+
+## NGR — Neutral resistor and capacitive charging duty
+
+**Inputs in order:** System kV LL; desired resistive ground-fault A; duty seconds; frequency Hz; total capacitance to ground PER PHASE in microfarads for the connected island.
+
+**Equations:** `VLG=1000 kVLL/sqrt(3); R=VLG/IR; IC=3 omega Cphase VLG; Itotal=sqrt(IR^2+IC^2); P=VLG IR; E=P seconds.`
+
+**Outputs and interpretation:** R is the directly connected neutral resistor, not three times that value; 3R belongs in a sequence network. Assumes full neutral displacement, balanced phase capacitances, negligible source impedances and one resistive grounding source. Power/energy use constant resistance and voltage; no temperature-rise, endurance or grounding-transformer rating is established. Transformer-referred resistors need ratio conversion. IR/IC is reported without a universal acceptance threshold.
+
+
+### Worked run
+
+```text
+NGR + CHARGING CHECK
+System kV LL: 34.5
+Resistive GF A: 400
+Duty time sec: 10
+Frequency Hz: 60
+Total C/phase uF: 2
+VLG = 19918.58 V
+NGR R = 49.7965 ohm
+Charging I = 45.055 A
+Total GF I = 402.529 A
+IR/IC ratio = 8.878
+Resistor duty = 7.9674 MW
+Energy = 79.6743 MJ
+```
+
+## SPHERE — Single-mast or equal-support rolling-sphere section
+
+**Inputs in order:** Mode 1 single or 2 equal supports; sphere radius; mast/support height; equipment height; then target offset (mode 1) or support spacing (mode 2), all in the SAME length units.
+
+**Equations:** `Single: offset=sqrt(2Rh-h^2)-sqrt(2Rhe-he^2), h=min(hmast,R). Equal supports: ymid=hmast+sqrt(R^2-(d/2)^2)-R; dmax=2sqrt(2Rdh-dh^2) for dh<R, otherwise 2R.`
+
+**Outputs and interpretation:** Equality is touching/outside, never below. Mode 2 requires d<2R and he<hmast. Midpoint geometry does not establish 3-D protection between isolated mast pairs or side-stroke coverage. Geometry is derived; radius/attraction model must come from adopted study. Heights above R are capped only in mode 1. No protection-angle default, probabilistic risk rate or current-standard radius selection is embedded.
+
+
+### Worked run
+
+```text
+ROLLING SPHERE 2D
+1=SINGLE MAST
+2=EQUAL MASTS
+Mode: 2
+Sphere radius: 150
+Mast height: 60
+Equipment height: 20
+Mast spacing: 150
+Max spacing = 203.9608
+Arc at midpoint = 39.9038
+Vertical margin = 19.9038
+BELOW MIDPOINT ARC
+```
+
+## VDROP — Receiving-end three-phase voltage-drop phasor
+
+**Inputs in order:** Receiving MW; receiving kV LL; PF magnitude; 1 lag or 2 lead; one-way ft; R ohm/kft at base temperature; X ohm/kft; base C; operating C; alpha per C referenced to that BASE temperature; equal parallel runs per phase.
+
+**Equations:** `Rhot=Rbase[1+alpha_base(Top-Tbase)]; R,X = per-kft values times length/(1000 n); I = 1000 MW/(sqrt(3) kV PF); Vs=Vr+(R+jX)I; loss=3 I^2 R.`
+
+**Outputs and interpretation:** Uses explicit real/imaginary arithmetic. Alpha20 cannot be used directly with a 75 C base resistance: convert alpha_base=alpha20/[1+alpha20(Tbase-20)] or use independently corrected R and alpha=0. The example explicitly treats 0.00393 as a supplied coefficient at its entered base, not as a material table. Equal parallel impedance/current division excludes mutual/sheath effects. R should represent relevant AC resistance. Negative signed voltage change can occur for leading loads. Excludes charging, taps, unbalance and distributed line effects.
+
+
+### Worked run
+
+```text
+EXACT 3PH VOLT DROP
+Receiving load MW: 50
+Receiving kV LL: 34.5
+PF 0-1: 0.95
+1=LAG 2=LEAD: 1
+One-way length ft: 10000
+R ohm/kft at base C: 0.1
+X ohm/kft: 0.08
+Base temp C: 75
+Operating temp C: 90
+Alpha at BASE C: 0.00393
+Parallel runs/phase: 2
+Line current = 880.78 A
+R at temp = 0.1059 ohm/kft
+Circuit R = 0.52948 ohm
+Circuit X = 0.4 ohm
+Sending kV = 35.45941
+Exact dV = 959.41 V
+Exact dV = 2.7809 %
+Conductor loss = 1232.254 kW
+```
+
+## XFMR — Concept transformer capacity and winding currents
+
+**Inputs in order:** Plant MWac; PF; planning margin percent; HV kV LL; MV kV LL; optional Z% (0 unknown); installed units.
+
+**Equations:** `Total planning MVA=MWac/PF (1+margin/100); per-unit allocation=total/N; planning FLA=1000 MVA/(sqrt(3) kV).`
+
+**Outputs and interpretation:** Outputs total and per-unit planning MVA, HV bank FLA, aggregate MV FLA and per-unit MV FLA. Equal allocation and common voltage bases assumed. Normally split MV buses use per-unit current; the sum is not a common-bus duty. Z is recorded only: planning MVA is not the OEM impedance base. This module does not calculate fault duty, cooling-stage capability, N-1, losses or reactive export at the POI. It preserves the user's requested 10%-design scope.
+
+
+### Worked run
+
+```text
+XFMR 10% CAPACITY CHECK
+Plant MWac: 300
+Plant PF: 0.95
+Planning margin %: 10
+HV kV LL: 230
+MV kV LL: 34.5
+Z% (0=unknown): 0
+Installed units: 2
+Required total = 347.368 MVA
+Planning/unit = 173.684 MVA
+HV bank FLA = 872.0 A
+MV total FLA = 5813.1 A
+MV FLA/unit = 2906.6 A
+Planning FLA incl margin
+MV total is sum only
+Use ZSIZE for impedance
+```
+
+## ZSIZE — Transformer impedance from a downstream duty limit
+
+**Inputs in order:** Per-transformer Z-base MVA; HV/LV base kV LL; permissible symmetrical breaker kA; maximum voltage pu (1-2); duty headroom percent; other contributing kA through the studied breaker; equal units on SAME LV bus; negative relative tolerance percent; rounding increment in percentage points; OEM nominal Z% (0 checks generated candidate).
+
+**Equations:** `Ibase,kA=Sunit/(sqrt(3) kVLV); target=limit(1-headroom/100); budget=target-other; Zactual%=100 c N Ibase/budget; Znom%=Zactual/(1-tolerance/100); candidate=ceil(Znom/step) step.`
+
+**Outputs and interpretation:** Infinite HV source; no finite-source credit. Split LV buses use N=1 despite a common HV bus. All Z values use the entered unit base and tap. Low-Z candidates at/below 2.5% use at least 10% tolerance; if this forces a higher candidate, the 10% treatment is retained conservatively. A low-Z OEM proposal receives its own minimum 10% check. Other contributions are a conservative magnitude sum. No budget means no candidate. Rounding is upward but reporting precision does not create an OEM guarantee. No upper-Z/voltage-performance limit, full breaker duty or procurement release is established.
+
+
+### Worked run
+
+```text
+XFMR IMPEDANCE SIZING
+Infinite HV source
+Equal 2-winding units
+Z base MVA/unit: 100
+HV base kV LL: 138
+LV base kV LL: 34.5
+Breaker sym kA: 12.8
+Max voltage pu: 1
+Duty headroom %: 0
+Other fault kA: 0
+Units on SAME LV: 1
+Minus Z tol %: 7.5
+Z step pct points: 1
+OEM Z% (0=auto): 0
+Base MVA/unit = 100.0
+HV FLA/unit A = 418.37
+LV FLA/unit A = 1673.48
+LV Zbase ohm = 11.9025
+Target duty kA = 12.8
+XFMR budget kA = 12.8
+Min actual Z% = 13.0741
+Min nominal Z% = 14.1341
+Rounded candidate % = 15.0
+Checked nominal % = 15.0
+Checked minus tol % = 7.5
+Lowest actual Z% = 13.875
+Worst screen kA = 12.0611
+Target spare kA = 0.7389
+ENTERED SCREEN MEETS
+PROCUREMENT HOLD
+Study + OEM review
+```
+
+## PUBASE — Per-unit R/X base conversion
+
+**Inputs in order:** Old MVA, old kV LL, new MVA, new kV LL, old R pu, old X pu.
+
+**Equations:** `Znew=Zold(Snew/Sold)(Vold/Vnew)^2; Zbase=kV^2/MVA; Ibase=1000 MVA/(sqrt(3) kV).`
+
+**Outputs and interpretation:** Voltage bases refer to the SAME physical side. Outputs new R/X pu, magnitude percent, physical R/X ohms and both base impedances/current. Negative X allowed. Physical transformer-side referral requires the turns-ratio-squared operation in addition to base conversion.
+
+
+### Worked run
+
+```text
+3PH PER-UNIT BASES
+Old base MVA: 100
+Old base kV LL: 100
+New base MVA: 200
+New base kV LL: 50
+Old R pu: 0
+Old X pu: 0.1
+Base scale = 8.0
+New R pu = 0.0
+New X pu = 0.8
+New Z % = 80.0
+R ohm = 0.0
+X ohm = 10.0
+Old Zbase ohm = 100.0
+New Zbase ohm = 12.5
+New Ibase A = 2309.401
+SAME physical side
+```
+
+## DCDROP — DC control-loop voltage and maximum length
+
+**Inputs in order:** Minimum source V; duty current A; one-way ft; single-wire ohm/kft at operating temperature; other total loop ohms; required minimum device V.
+
+**Equations:** `Rloop=2 L r/1000+Rother; Vdevice=Vs-I Rloop; Lmax=500[(Vs-Vmin)/I-Rother]/r.`
+
+**Outputs and interpretation:** Constant-current model. Outputs total loop R, drop, device volts, margin, loss watts and maximum length when I and r are nonzero. Negative length budget is flagged. OEM coil/current at the applicable voltage, contact drops, inrush, shared segments and battery end voltage matter. Constant-power loads need a different circuit solution.
+
+
+### Worked run
+
+```text
+DC CONTROL LOOP DROP
+Min source volts: 125
+Duty current A: 5
+One-way length ft: 1000
+Wire ohm/kft: 1
+Other loop ohm: 0.5
+Device min volts: 100
+Loop R ohm = 2.5
+Drop V = 12.5
+Drop % = 10.0
+Device V = 112.5
+Margin V = 12.5
+Loop loss W = 62.5
+Max one-way ft = 2250.0
+ENTERED DUTY MEETS
+Check OEM coil duty
+```
+
+## PQSUM — Signed real/reactive power aggregation
+
+**Inputs in order:** Bus kV LL; number of items 1-30; signed MW and Mvar for each.
+
+**Equations:** `P=sum Pi; Q=sum Qi; |S|=sqrt(P^2+Q^2); I=1000 |S|/(sqrt(3) kV); |PF|=|P|/|S|.`
+
+**Outputs and interpretation:** Positive P is real consumption; positive Q inductive consumption; generation/capacitors have negative signs. Outputs net exchange only. Internal feeder currents can remain high even when net power cancels. Zero net S produces undefined PF. No invented leading/lagging label for reverse power.
+
+
+### Worked run
+
+```text
+3PH P-Q SUM
+Load P+, generation P-
+Inductive Q+, cap Q-
+Bus kV LL: 34.5
+Number of items: 2
+Item 1
+Signed MW: 30
+Signed Mvar: 20
+Item 2
+Signed MW: 20
+Signed Mvar: -5
+Net MW = 50.0
+Net Mvar = 15.0
+Net MVA = 52.2015
+Bus current A = 873.582
+PF magnitude = 0.95783
+Net exchange only
+Check each branch duty
+```
+
+## WENNER — Wenner apparent resistivity
+
+**Inputs in order:** Equal probe spacing m; insertion depth m; measured resistance ohm.
+
+**Equations:** `rho=2 pi a R for shallow probes.`
+
+**Outputs and interpretation:** Only reports rho when depth<=0.1 spacing. Otherwise withholds the shallow result. Output is ohm-m apparent resistivity, not a soil-layer fit or grid resistance. Repeat spacings/axes; measurement interference, season and instrument resolution are outside this arithmetic.
+
+
+### Worked run
+
+```text
+WENNER APPARENT RHO
+Equal spacing m: 5
+Probe depth m: 0.1
+Measured R ohm: 10
+Depth/spacing = 0.02
+App rho ohm-m = 314.159
+Shallow-probe estimate
+Repeat spacings/axes
+Not grid resistance
+```
+
+## UNBAL — Line-voltage magnitude unbalance
+
+**Inputs in order:** Three RMS line-line voltage magnitudes in matching units; entered permitted deviation percent.
+
+**Equations:** `Average=(Vab+Vbc+Vca)/3; unbalance%=100 max(|Vi-average|)/average.`
+
+**Outputs and interpretation:** This is a magnitude-deviation metric, not V2/V1. No fixed allowable percentage or motor-derating rule. Zero average invalid; missing phase zero values remain calculable for fault diagnosis.
+
+
+### Worked run
+
+```text
+LL VOLTAGE UNBALANCE
+Vab RMS: 100
+Vbc RMS: 100
+Vca RMS: 103
+Allowed deviation %: 2
+Average V = 101.0
+Max deviation V = 2.0
+Unbalance % = 1.9802
+ENTERED LIMIT MEETS
+Not V2/V1 sequence
+Same units for all V
+```
+
+## BUSAMP — Bus conductor heat-balance audit
+
+**Inputs in order:** Hot DC R ohm/m; Rac/Rdc factor >=1; convection, radiation, conduction losses and solar gain, all W/m; duty A; kV LL.
+
+**Equations:** `Ithermal=sqrt[(qc+qr+qconduction-qs)/(Rdc F)]; MVA=sqrt(3) kV I/1000.`
+
+**Outputs and interpretation:** All heat terms and resistance must describe the SAME conductor temperature, geometry and weather. No weather correlation, heat-transfer coefficients, conductor table or joint ampacity is invented. Negative net cooling means no feasible current at the specified temperature. Conduction=0 is allowed when no credit justified. This inverse balance is useful for auditing a full IEEE 605 worksheet; it is not a complete bus design.
+
+
+### Worked run
+
+```text
+BUS HEAT BALANCE
+All heat in W/m
+Hot DC R ohm/m: 0.0001
+Rac/Rdc factor: 1
+Convection loss W/m: 60
+Radiation loss W/m: 30
+Conduction loss W/m: 0
+Solar gain W/m: 10
+Duty current A: 800
+Bus kV LL: 34.5
+Hot AC R ohm/m = 0.0001
+Net cooling W/m = 80.0
+Duty Joule W/m = 64.0
+Thermal current A = 894.427
+Thermal MVA = 53.447
+Current margin A = 94.427
+HEAT BALANCE MEETS
+Use common temp/weather
+Check joints/apparatus
+```
+
+## REACTOR — Radial series-reactor impedance sizing
+
+**Inputs in order:** Bus kV LL; existing fault kA at 1pu; source X/R; target fault kA; maximum voltage pu; Hz; load A.
+
+**Equations:** `Zs=V/(sqrt(3) Isc at 1pu); R=Zs/sqrt(1+(X/R)^2); X=R(X/R); required |Z|=c V/(sqrt(3) Ilimit); added X=max(0,sqrt(max(0,|Zreq|^2-R^2))-X); L=X/(2 pi f).`
+
+**Outputs and interpretation:** Outputs source R/X, minimum added reactance ohm/phase, mH/phase, resulting fault kA, load Mvar and IX volts/phase. One radial upstream path through a lossless added reactor. All bypass/downstream sources require another model. No tolerance/headroom applied automatically, and IX is not actual regulation. Thermal/mechanical withstand, insulation, magnetic clearance, losses and voltage performance need OEM/study work.
+
+
+### Worked run
+
+```text
+SERIES REACTOR CHECK
+One radial source path
+Bus base kV LL: 34.5
+Source fault kA at 1pu: 25
+Source X/R: 10
+Target fault kA: 12.8
+Max voltage pu: 1.05
+Frequency Hz: 60
+Load current A: 1000
+Source R ohm = 0.07928
+Source X ohm = 0.79279
+Min added X ohm = 0.83923
+Inductance mH/ph = 2.22613
+Calculated fault kA = 12.8
+Load reactive Mvar = 2.5177
+Load IX volts/ph = 839.233
+No tolerance applied
+OEM/voltage study HOLD
+```

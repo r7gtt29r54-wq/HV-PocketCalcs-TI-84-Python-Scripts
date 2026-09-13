@@ -54,8 +54,8 @@ for index, value in [(0, 0), (1, float('nan')), (2, float('inf')),
     assert "INPUT ERROR" in run(data), (index, value)
 data = base[:]
 data[3] = 200
-assert "CHECK LOW-Z TOLERANCE" in run(data)
-assert "ENTERED SCREEN MEETS" not in run(data)
+assert "Low-Z: using 10% tol" in run(data)
+assert "Checked minus tol % = 10" in run(data)
 PROGRAM.read_text(encoding="ascii")
 assert len(PROGRAM.stem) <= 8
 print("PASS: ZSIZE baseline, physical-ohm checks, topology, tolerance and invalid inputs")

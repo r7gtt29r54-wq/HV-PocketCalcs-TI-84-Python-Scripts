@@ -1,39 +1,79 @@
-print("CT BURDEN/SATURATION")
-try:
-    ipf = float(input("Primary fault kA: "))
-    ipr = float(input("CT tap primary A: "))
-    isr = float(input("CT rated sec A: "))
-    length = float(input("One-way lead ft: "))
-    rohm = float(input("Lead ohm/kft: "))
-    rva = float(input("Relay burden VA: "))
-    ova = float(input("Other burden VA: "))
-    rct = float(input("CT winding ohm: "))
-    cvolt = float(input("Effective C class V: "))
-    xr = float(input("Primary X/R: "))
-    if min(ipf, ipr, isr, cvolt) <= 0:
+# Local review revision 2026-09-12. Enter Q to cancel any prompt.
+def report(*items):
+    for item in items:
+        if isinstance(item, float) and (item != item or abs(item) == float("inf")):
+            raise ValueError
+    print(*items)
+
+
+def whole(prompt):
+    value = number(prompt)
+    if value != int(value):
         raise ValueError
-    if min(length, rohm, rva, ova, rct, xr) < 0:
+    return int(value)
+
+
+from math import sqrt
+
+
+def number(prompt):
+    text = input(prompt)
+    if text.strip().upper() == "Q":
+        raise KeyboardInterrupt
+    value = float(text)
+    if value != value or abs(value) > 1e12:
+        raise ValueError
+    return value
+
+
+report("CT LOOP / EXCITATION")
+try:
+    ipf = number("Primary fault kA: ")
+    ipr = number("CT tap primary A: ")
+    isr = number("CT rated sec A: ")
+    length = number("One-way lead ft: ")
+    rohm = number("Lead ohm/kft: ")
+    va = number("Total device VA: ")
+    pf = number("Device burden PF: ")
+    rct = number("CT winding ohm: ")
+    cvolt = number("C class V (0=unknown): ")
+    xr = number("Primary X/R: ")
+    exc = number("Exc V limit (0=none): ")
+    if min(ipf, ipr, isr, pf) <= 0 or pf > 1:
+        raise ValueError
+    if min(length, rohm, va, rct, cvolt, xr, exc) < 0:
         raise ValueError
     ifsec = ipf * 1000 * isr / ipr
     rlead = 2 * length * rohm / 1000
-    zdev = (rva + ova) / (isr * isr)
-    zext = rlead + zdev
-    vrated = isr * isr * zext
+    zdev = va / (isr * isr)
+    rext = rlead + zdev * pf
+    xext = zdev * sqrt(1-pf*pf)
+    zext = sqrt(rext*rext + xext*xext)
+    zint = sqrt((rext+rct)**2 + xext*xext)
     vterm = ifsec * zext
-    vint = ifsec * (zext + rct)
-    voff = vint * (1 + xr)
-    print("Fault secondary =", round(ifsec, 3), "A")
-    print("Lead loop R =", round(rlead, 4), "ohm")
-    print("External Z =", round(zext, 4), "ohm")
-    print("Rated burden =", round(vrated, 3), "VA")
-    print("Sym terminal V =", round(vterm, 2), "V")
-    print("Sym internal V =", round(vint, 2), "V")
-    print("Class use sym =", round(100 * vterm / cvolt, 1), "%")
-    print("Offset req V =", round(voff, 2), "V")
-    print("Class use offset =", round(100 * voff / cvolt, 1), "%")
-    if voff <= cvolt:
-        print("OFFSET SCREEN MEETS")
+    vint = ifsec * zint
+    voff = vint * (1+xr)
+    report("Fault secondary A =", round(ifsec, 3))
+    report("Lead loop R ohm =", round(rlead, 4))
+    report("External R ohm =", round(rext, 4))
+    report("External X ohm =", round(xext, 4))
+    report("Rated burden VA =", round(isr*isr*zext, 3))
+    report("Sym terminal V =", round(vterm, 2))
+    report("Sym internal V =", round(vint, 2))
+    report("Offset req V =", round(voff, 2))
+    if cvolt > 0:
+        report("Terminal/C ratio =", round(vterm/cvolt, 4))
+        report("C class is not knee V")
+    if exc > 0:
+        report("Exc limit/req =", round(exc/voff, 4) if voff > 0 else 0)
+        if voff <= exc:
+            report("ENTERED EXC LIMIT MEETS")
+        else:
+            report("EXCITATION LIMIT EXCEEDS")
     else:
-        print("EXCITATION CURVE CHECK")
-except:
-    print("INPUT ERROR")
+        report("EXCITATION CURVE HOLD")
+    report("No remanence/time model")
+except KeyboardInterrupt:
+    report("CANCELLED")
+except (ValueError, ZeroDivisionError, OverflowError, EOFError):
+    report("INPUT ERROR: discard run")
