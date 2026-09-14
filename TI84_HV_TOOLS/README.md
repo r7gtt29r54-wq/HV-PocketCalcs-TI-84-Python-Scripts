@@ -1,8 +1,8 @@
 # HV PocketCalcs — TI-84 Evo Python
 
-18 standalone pocket programs, revised 2026-09-12 after a calculation/source audit. Approved by the repository owner for GitHub publication. Calculator transfer and physical execution of this revision remain unverified.
+18 standalone pocket programs for HV design and calculation checks. Verify the worked examples on your calculator before routine use.
 
-[Complete instruction manual](./INSTRUCTION_MANUAL.md) · [Calculation sources and limitations](./CALCULATION_BASIS.md) · [Audit report](../AUDIT_STATUS.md)
+[Complete instruction manual](./INSTRUCTION_MANUAL.md) · [Calculation models](./CALCULATION_BASIS.md) · [Program verification](../AUDIT_STATUS.md)
 
 | Program | Daily use |
 |---|---|
@@ -30,7 +30,7 @@
 1. Review the program's input definitions and worked case in the manual.
 2. Transfer the desired `.py` files with TI Connect Evo; documentation and tests remain on the computer.
 3. Run in the Python app. Enter `Q` to cancel; restart after an input error. Review wrapped output using shell scrolling.
-4. Verify the worked example on the physical calculator before routine use. This audit verified desktop behavior and the documented TI-Python subset only.
+4. Verify the worked example on the physical calculator before routine use.
 
 Each script is independent. No vendor tables, operating limits, sphere radius, protective margin, OEM battery curve or equipment rating is silently supplied. Numerical matches support review under the stated model; procurement/operating decisions require the applicable study and accountable approval.
 

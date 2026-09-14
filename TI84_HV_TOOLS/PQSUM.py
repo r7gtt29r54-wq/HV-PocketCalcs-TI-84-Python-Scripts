@@ -1,4 +1,4 @@
-# Local review revision 2026-09-12. Enter Q to cancel any prompt.
+# Enter Q to cancel any prompt.
 def report(*items):
     for item in items:
         if isinstance(item, float) and (item != item or abs(item) == float("inf")):

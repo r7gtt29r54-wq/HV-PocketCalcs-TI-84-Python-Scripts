@@ -1,5 +1,13 @@
-# Added pocket calculators
+# Additional pocket tools
 
-The full audit adds seven standalone programs: PUBASE, DCDROP, PQSUM, WENNER, UNBAL, BUSAMP and REACTOR. Their complete inputs, equations, output transcripts, source locators and limits are integrated into the [instruction manual](./INSTRUCTION_MANUAL.md).
+| Program | Use |
+|---|---|
+| PUBASE | Convert per-unit resistance and reactance between bases |
+| DCDROP | Calculate DC control-loop voltage drop and maximum length |
+| PQSUM | Sum signed real and reactive power |
+| WENNER | Calculate shallow-probe apparent soil resistivity |
+| UNBAL | Calculate line-voltage magnitude unbalance |
+| BUSAMP | Check conductor current from heat-balance inputs |
+| REACTOR | Estimate radial series-reactor reactance and inductance |
 
-The former draft has been superseded by that unified manual. See the [audit report](../AUDIT_STATUS.md) for review findings and verification evidence.
+See the [instruction manual](./INSTRUCTION_MANUAL.md) for each program's inputs, equations, worked run and limits.

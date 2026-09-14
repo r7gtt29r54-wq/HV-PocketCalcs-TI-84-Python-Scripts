@@ -1,12 +1,12 @@
 # HV PocketCalcs — complete instruction manual
 
-Revision 2026-09-12. Audited package of 18 standalone programs, approved by the repository owner for GitHub publication. Calculator transfer and physical execution of this revision remain unverified.
+18 standalone calculation programs. Calculator-specific operation should be checked using the worked examples.
 
 ## Running a program
 
 Transfer the desired `.py` files only, then select and run the program in the calculator Python app. Each is standalone with core Python and `math` only. Enter numeric values with a decimal point, no commas or unit suffixes. Enter `Q` at any prompt to cancel; an invalid value ends the run. On an input/numerical error, discard the entire run including any earlier intermediate section results. Results may wrap; scroll the Python shell to review them. Rerun to change inputs.
 
-Record asset, source revision, units, operating configuration and program revision. `MEETS` refers only to entered criteria under the documented model. The source register links exact clauses/pages and distinguishes current versus historical reference evidence. Examples are synthetic arithmetic checks, never project/OEM input defaults. Desktop examples and regressions are verified; physical TI-84 Evo execution remains unverified.
+Record asset, source revision, units, operating configuration and program revision. `MEETS` refers only to entered criteria under the documented model. Examples are synthetic arithmetic checks, never project/OEM input defaults. Desktop examples and regressions are verified; physical TI-84 Evo execution remains unverified.
 
 ## Program index
 
@@ -143,7 +143,7 @@ Resonance order = 8.165
 
 **Equations:** `Ifsec = Ifprimary Israted/Itap; Zdev = VA/Israted^2; Rext = 2 L r/1000 + Zdev PF; Xext = Zdev sqrt(1-PF^2); Vterminal=Ifsec |Zext|; Vinternal=Ifsec |Zext+RCT|; Voffset=(1+X/R) Vinternal.`
 
-**Outputs and interpretation:** The VA and PF must represent the combined devices at the relevant frequency/current, not an arbitrary sum of incompatible burdens. The terminal/C ratio is informational, not a saturation certification. Enter excitation voltage at a defined allowable exciting-current/flux criterion, not a C-class label relabeled as knee voltage. The older source uses C-class as a conservative proxy in its example; this calculator keeps the evidence distinct. No remanence or time-to-saturation, CT error, relay algorithm or waveform model. Use current CT guide/OEM data before application.
+**Outputs and interpretation:** The VA and PF must represent the combined devices at the relevant frequency/current, not an arbitrary sum of incompatible burdens. The terminal/C ratio is informational, not a saturation certification. Enter excitation voltage at a defined allowable exciting-current/flux criterion, not a C-class label relabeled as knee voltage. No remanence or time-to-saturation, CT error, relay algorithm or waveform model. Use the applicable CT requirements and OEM data before application.
 
 
 ### Worked run
@@ -182,7 +182,7 @@ No remanence/time model
 
 **Equations:** `Aremoved = sum(Ai ti/60). For each endpoint s, Fs=sum((Ap-Ap-1) Kt), with A0=0 and t measured from start of period p to end of section s. Required rated Ah=(max Fs+random-duty size Ah) temperature aging design. Charger=[Aremoved recharge/recharge-hours+continuous recharge load] charger-design altitude.`
 
-**Outputs and interpretation:** Use one exact cell family, temperature basis, endpoint V/cell and capacity rating definition. Kt is rated Ah divided by discharge A at the displayed duration; it is not ampere/plate Rt and is not elapsed hours. The program caches repeated durations and rejects Kt decreasing with increasing time. Negative load changes are retained. All section endpoints are evaluated. Synthetic factors in the example are test data, not OEM curves. Random size and random Ah removed are distinct quantities; enter 0 only if absent. No-Kt mode still calculates charge removed/charger but holds battery size. Fixed sequential total loads must already combine simultaneous loads; separate random duty must be evaluated per IEEE 485 §6.4.4. Subminute transients, random combinations, cell count/voltage window, initial capacity, coup de fouet and selected-size curve validity require review. Multipliers below 1 are excluded to avoid assumed capacity credit. Discard earlier section prints if later inputs produce an error.
+**Outputs and interpretation:** Use one exact cell family, temperature basis, endpoint V/cell and capacity rating definition. Kt is rated Ah divided by discharge A at the displayed duration; it is not ampere/plate Rt and is not elapsed hours. The program caches repeated durations and rejects Kt decreasing with increasing time. Negative load changes are retained. All section endpoints are evaluated. Synthetic factors in the example are test data, not OEM curves. Random size and random Ah removed are distinct quantities; enter 0 only if absent. No-Kt mode still calculates charge removed/charger but holds battery size. Fixed sequential total loads must already combine simultaneous loads; calculate the separate random-duty capacity for the applicable duty cycle. Subminute transients, random combinations, cell count/voltage window, initial capacity, coup de fouet and selected-size curve validity require review. Multipliers below 1 are excluded to avoid assumed capacity credit. Discard earlier section prints if later inputs produce an error.
 
 
 ### Worked run
@@ -579,7 +579,7 @@ Same units for all V
 
 **Equations:** `Ithermal=sqrt[(qc+qr+qconduction-qs)/(Rdc F)]; MVA=sqrt(3) kV I/1000.`
 
-**Outputs and interpretation:** All heat terms and resistance must describe the SAME conductor temperature, geometry and weather. No weather correlation, heat-transfer coefficients, conductor table or joint ampacity is invented. Negative net cooling means no feasible current at the specified temperature. Conduction=0 is allowed when no credit justified. This inverse balance is useful for auditing a full IEEE 605 worksheet; it is not a complete bus design.
+**Outputs and interpretation:** All heat terms and resistance must describe the SAME conductor temperature, geometry and weather. No weather correlation, heat-transfer coefficients, conductor table or joint ampacity is invented. Negative net cooling means no feasible current at the specified temperature. Conduction=0 is allowed when no credit justified. This inverse balance is useful for checking a full conductor heat-balance worksheet; it is not a complete bus design.
 
 
 ### Worked run

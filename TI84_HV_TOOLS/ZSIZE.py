@@ -1,4 +1,4 @@
-# Local review revision 2026-09-12. Enter Q to cancel any prompt.
+# Enter Q to cancel any prompt.
 def report(*items):
     for item in items:
         if isinstance(item, float) and (item != item or abs(item) == float("inf")):
@@ -13,7 +13,6 @@ def whole(prompt):
     return int(value)
 
 
-# ZSIZE 2026-09-12: equal two-winding units, infinite HV source.
 # Every Z% is on the entered PER-UNIT transformer MVA/kV base.
 from math import sqrt, ceil
 

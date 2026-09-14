@@ -1,5 +1,5 @@
 # ZSIZE instruction manual
 
-The current, audited ZSIZE instructions, exact prompt order, worked run, tolerance behavior and procurement limitations are in the [complete manual — ZSIZE](./INSTRUCTION_MANUAL.md#zsize--transformer-impedance-from-a-downstream-duty-limit).
+See the [complete ZSIZE instructions](./INSTRUCTION_MANUAL.md#zsize--transformer-impedance-from-a-downstream-duty-limit) for the prompt order, worked run, tolerance behavior and limitations.
 
-The standard and source locators are in [calculation basis, S2](./CALCULATION_BASIS.md). Every impedance is on the explicitly entered per-transformer MVA and tap voltage base. Split MV buses use one transformer per studied bus. The candidate is held for procurement until full fault duty and voltage performance are verified.
+Every impedance uses the explicitly entered per-transformer MVA and tap voltage base. Split MV buses use one transformer per studied bus. Verify full fault duty, voltage performance and equipment capability before procurement.
