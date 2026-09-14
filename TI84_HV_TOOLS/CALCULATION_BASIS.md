@@ -66,7 +66,7 @@ Use the following equations with the input definitions and worked examples in th
 
 `Average=(Vab+Vbc+Vca)/3; unbalance%=100 max(|Vi-average|)/average.`
 
-## BUSAMP — Bus conductor heat-balance audit
+## BUSAMP — Bus conductor heat-balance check
 
 `Ithermal=sqrt[(qc+qr+qconduction-qs)/(Rdc F)]; MVA=sqrt(3) kV I/1000.`
 

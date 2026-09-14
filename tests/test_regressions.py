@@ -1,4 +1,5 @@
-"""Regression cases motivated by independent audit findings."""
+"""Regression cases for calculator-program edge conditions."""
+
 import subprocess
 import sys
 from pathlib import Path
@@ -58,4 +59,4 @@ assert 'ENTERED LIMIT EXCEEDS' in out
 for name in ['PUBASE', 'DCDROP', 'WENNER', 'PQSUM', 'UNBAL']:
     assert 'INPUT ERROR' in run(name,['nan'])
     (ROOT/(name+'.py')).read_text(encoding='ascii')
-print('PASS: audit bug cases, per-unit round trip, DC loop voltage and invalid values')
+print('PASS: edge cases, per-unit round trip, DC loop voltage and invalid values')

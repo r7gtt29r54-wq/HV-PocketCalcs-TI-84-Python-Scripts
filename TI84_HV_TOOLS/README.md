@@ -2,7 +2,7 @@
 
 18 standalone pocket programs for HV design and calculation checks. Verify the worked examples on your calculator before routine use.
 
-[Complete instruction manual](./INSTRUCTION_MANUAL.md) · [Calculation models](./CALCULATION_BASIS.md) · [Program verification](../AUDIT_STATUS.md)
+[Complete instruction manual](../README.md) · [Calculation models](./CALCULATION_BASIS.md)
 
 | Program | Daily use |
 |---|---|
@@ -22,7 +22,7 @@
 | [PQSUM.py](./PQSUM.py) | Signed real/reactive power aggregation |
 | [WENNER.py](./WENNER.py) | Wenner apparent resistivity |
 | [UNBAL.py](./UNBAL.py) | Line-voltage magnitude unbalance |
-| [BUSAMP.py](./BUSAMP.py) | Bus conductor heat-balance audit |
+| [BUSAMP.py](./BUSAMP.py) | Bus conductor heat-balance check |
 | [REACTOR.py](./REACTOR.py) | Radial series-reactor impedance sizing |
 
 ## Use
@@ -41,7 +41,7 @@ Run from the repository root:
 ```sh
 python3 -B tests/test_programs.py
 python3 -B tests/test_zsize.py
-python3 -B tests/test_audit_regressions.py
+python3 -B tests/test_regressions.py
 python3 -B tests/test_suite.py
 python3 -B tests/verify_delivery.py
 ```

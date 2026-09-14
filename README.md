@@ -12,24 +12,24 @@ Record asset, source revision, units, operating configuration and program revisi
 
 | Program | Purpose |
 |---|---|
-| [ARREST.py](./ARREST.py) | Arrester voltage coordination |
-| [BUSCHK.py](./BUSCHK.py) | Bus continuous, short-time and peak duty |
-| [CAPBANK.py](./CAPBANK.py) | Capacitor bank selection at operating voltage |
-| [CTBURD.py](./CTBURD.py) | CT burden and internal excitation demand |
-| [DCLOAD.py](./DCLOAD.py) | Sequential battery duty and charger calculation |
-| [FAULT3.py](./FAULT3.py) | Three-phase and sequence fault currents |
-| [NGR.py](./NGR.py) | Neutral resistor and capacitive charging duty |
-| [SPHERE.py](./SPHERE.py) | Single-mast or equal-support rolling-sphere section |
-| [VDROP.py](./VDROP.py) | Receiving-end three-phase voltage-drop phasor |
-| [XFMR.py](./XFMR.py) | Concept transformer capacity and winding currents |
-| [ZSIZE.py](./ZSIZE.py) | Transformer impedance from a downstream duty limit |
-| [PUBASE.py](./PUBASE.py) | Per-unit R/X base conversion |
-| [DCDROP.py](./DCDROP.py) | DC control-loop voltage and maximum length |
-| [PQSUM.py](./PQSUM.py) | Signed real/reactive power aggregation |
-| [WENNER.py](./WENNER.py) | Wenner apparent resistivity |
-| [UNBAL.py](./UNBAL.py) | Line-voltage magnitude unbalance |
-| [BUSAMP.py](./BUSAMP.py) | Bus conductor heat-balance check |
-| [REACTOR.py](./REACTOR.py) | Radial series-reactor impedance sizing |
+| [ARREST.py](./TI84_HV_TOOLS/ARREST.py) | Arrester voltage coordination |
+| [BUSCHK.py](./TI84_HV_TOOLS/BUSCHK.py) | Bus continuous, short-time and peak duty |
+| [CAPBANK.py](./TI84_HV_TOOLS/CAPBANK.py) | Capacitor bank selection at operating voltage |
+| [CTBURD.py](./TI84_HV_TOOLS/CTBURD.py) | CT burden and internal excitation demand |
+| [DCLOAD.py](./TI84_HV_TOOLS/DCLOAD.py) | Sequential battery duty and charger calculation |
+| [FAULT3.py](./TI84_HV_TOOLS/FAULT3.py) | Three-phase and sequence fault currents |
+| [NGR.py](./TI84_HV_TOOLS/NGR.py) | Neutral resistor and capacitive charging duty |
+| [SPHERE.py](./TI84_HV_TOOLS/SPHERE.py) | Single-mast or equal-support rolling-sphere section |
+| [VDROP.py](./TI84_HV_TOOLS/VDROP.py) | Receiving-end three-phase voltage-drop phasor |
+| [XFMR.py](./TI84_HV_TOOLS/XFMR.py) | Concept transformer capacity and winding currents |
+| [ZSIZE.py](./TI84_HV_TOOLS/ZSIZE.py) | Transformer impedance from a downstream duty limit |
+| [PUBASE.py](./TI84_HV_TOOLS/PUBASE.py) | Per-unit R/X base conversion |
+| [DCDROP.py](./TI84_HV_TOOLS/DCDROP.py) | DC control-loop voltage and maximum length |
+| [PQSUM.py](./TI84_HV_TOOLS/PQSUM.py) | Signed real/reactive power aggregation |
+| [WENNER.py](./TI84_HV_TOOLS/WENNER.py) | Wenner apparent resistivity |
+| [UNBAL.py](./TI84_HV_TOOLS/UNBAL.py) | Line-voltage magnitude unbalance |
+| [BUSAMP.py](./TI84_HV_TOOLS/BUSAMP.py) | Bus conductor heat-balance check |
+| [REACTOR.py](./TI84_HV_TOOLS/REACTOR.py) | Radial series-reactor impedance sizing |
 
 ## ARREST — Arrester voltage coordination
 
